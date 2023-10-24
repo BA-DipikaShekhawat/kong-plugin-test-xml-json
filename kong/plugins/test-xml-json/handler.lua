@@ -76,7 +76,7 @@ function plugin:access(config)
  end
  
  local status = xpcall( xmlToJsonRequest, xmltojsonReqErrorhandler )
- kong.log.set_serialize_value("request.Bayad-Token-Generation-status", status)
+ kong.log.set_serialize_value("request.Xml-To-Json-Request-Conversion-status", status)
 end
 
 function plugin:header_filter(config)
