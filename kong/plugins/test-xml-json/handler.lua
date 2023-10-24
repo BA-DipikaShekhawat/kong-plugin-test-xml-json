@@ -5,7 +5,7 @@ local json = require "cjson"
 
 
 local plugin = {
-  PRIORITY = 1000, -- set the plugin priority, which determines plugin execution order
+  PRIORITY = 803, -- set the plugin priority, which determines plugin execution order
   VERSION = "0.1", -- version in X.Y.Z format. Check hybrid-mode compatibility requirements.
 }
 
@@ -19,6 +19,17 @@ function plugin:access(config)
   -- your custom code here
   kong.service.request.enable_buffering()
   if config.enable_on_request then
+    if kong.request.get_header("Content-Type") ~= "application/xml" then
+      local error_response = {
+        success = "false",
+        status = "failed",
+        errorCode = "8003",
+        message = "XML request body not found",
+      }
+      return kong.response.exit(400, error_response, {
+        ["Content-Type"] = "application/json"
+      })
+    end
     local initialRequest = kong.request.get_raw_body()
     local xml = initialRequest
     local handler = require("xmlhandler.tree")
