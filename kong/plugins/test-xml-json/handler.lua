@@ -11,7 +11,7 @@ local plugin = {
 
 function plugin:rewrite(config)
   -- Implement logic for the rewrite phase here (http)
-  kong.service.request.enable_buffering()
+  --kong.service.request.enable_buffering()
 end
 
 -- runs in the 'access_by_lua_block'
