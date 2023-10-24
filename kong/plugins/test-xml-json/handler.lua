@@ -17,7 +17,7 @@ end
 -- runs in the 'access_by_lua_block'
 function plugin:access(config)
   -- your custom code here
-  --kong.service.request.enable_buffering()
+  kong.service.request.enable_buffering()
   if config.enable_on_request then
     local initialRequest = kong.request.get_raw_body()
     local xml = initialRequest
