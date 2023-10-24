@@ -1,19 +1,19 @@
 local xml2lua = require("xml2lua")
-
+​
 local json = require "cjson"
-
-
-
+​
+​
+​
 local plugin = {
   PRIORITY = 1000, -- set the plugin priority, which determines plugin execution order
   VERSION = "0.1", -- version in X.Y.Z format. Check hybrid-mode compatibility requirements.
 }
-
+​
 function plugin:rewrite(config)
   -- Implement logic for the rewrite phase here (http)
   kong.service.request.enable_buffering()
 end
-
+​
 -- runs in the 'access_by_lua_block'
 function plugin:access(config)
   -- your custom code here
@@ -25,9 +25,9 @@ function plugin:access(config)
     handler = handler:new()
     --Instantiates the XML parser
     local parser = xml2lua.parser(handler)
-
+​
     parser:parse(xml)
-
+​
     -- Function to convert the XML tree to a Lua table recursively
     local function xml_tree_to_lua_table(xml_tree)
       local result = {}
@@ -47,18 +47,18 @@ function plugin:access(config)
       end
       return result
     end
-
+​
     -- Convert the XML tree to a Lua table
     local lua_table = xml_tree_to_lua_table(handler.root)
     kong.service.request.set_raw_body(json.encode(lua_table))
   end
 end
-
+​
 function plugin:header_filter(config)
   kong.response.clear_header("Content-Length")
   kong.response.set_header("Content-Type", "application/json")
 end
-
+​
 function plugin:body_filter(config)
   -- Implement logic for the body_filter phase here (http)
   if config.enable_on_response then
@@ -68,7 +68,7 @@ function plugin:body_filter(config)
     handler = handler:new()
     local parser = xml2lua.parser(handler)
     parser:parse(xmlResponse)
-
+​
     -- Function to convert the XML tree to a Lua table recursively
     local function xml_tree_to_lua_table(xml_tree)
       local result = {}
@@ -86,7 +86,7 @@ function plugin:body_filter(config)
           result[tag] = value
         end
       end
-      return results
+      return result
     end
     local response_lua_table = xml_tree_to_lua_table(handler.root)
     kong.log.set_serialize_value("response_lua_table", json.encode(response_lua_table))
