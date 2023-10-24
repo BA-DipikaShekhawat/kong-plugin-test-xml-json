@@ -19,6 +19,8 @@ function plugin:access(config)
   -- your custom code here
   kong.service.request.enable_buffering()
   if config.enable_on_request then
+    local Hheader = kong.request.get_header("Content-Type")
+    kong.log.set_serialize_value("Hheader", Hheader)
     if kong.request.get_header("Content-Type") ~= "application/xml" then
       local error_response = {
         success = "false",
