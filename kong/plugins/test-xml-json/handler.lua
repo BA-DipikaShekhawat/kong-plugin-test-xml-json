@@ -65,9 +65,6 @@ function plugin:access(config)
   function xmltojsonReqErrorhandler( err )
     kong.log.set_serialize_value("request.Xml-To-Json-Request-Conversion", err)
     local error_response = {
-   success = "false",
-   status = "failed",
-   errorCode = "8003",
    message = "Xml-to-json conversion failed",
    }
    return kong.response.exit(500, error_response, {
