@@ -19,13 +19,8 @@ function plugin:access(config)
   -- your custom code here
   kong.service.request.enable_buffering()
   if config.enable_on_request then
-    local Hheader = kong.request.get_header("Content-Type")
-    kong.log.set_serialize_value("Hheader", Hheader)
     if kong.request.get_header("Content-Type") ~= "application/xml" then
       local error_response = {
-        success = "false",
-        status = "failed",
-        errorCode = "8003",
         message = "XML request body not found",
       }
       return kong.response.exit(400, error_response, {
@@ -102,7 +97,6 @@ function plugin:body_filter(config)
       return result
     end
     local response_lua_table = xml_tree_to_lua_table(handler.root)
-    kong.log.set_serialize_value("response_lua_table", json.encode(response_lua_table))
     kong.response.set_raw_body(json.encode(response_lua_table))
   end
 end
