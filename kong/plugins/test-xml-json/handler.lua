@@ -17,9 +17,9 @@ end
 -- runs in the 'access_by_lua_block'
 function plugin:access(config)
   -- your custom code here
-  kong.service.request.enable_buffering()
-  if config.enable_on_request then
-    function xmlToJsonFunction ()
+  function xmlToJsonFunction ()
+    kong.service.request.enable_buffering()
+    if config.enable_on_request then
       if kong.request.get_header("Content-Type") ~= "application/xml" then
         local error_response = {
           message = "XML request body not found",
@@ -65,10 +65,10 @@ function plugin:access(config)
       kong.log.set_serialize_value("request.Xml-To-Json_Request", err)
       local error_response = {
         message = "Invalid xml request payload",
-     }
-     return kong.response.exit(400, error_response, {
-       ["Content-Type"] = "application/json"
-     })
+      }
+      return kong.response.exit(400, error_response, {
+        ["Content-Type"] = "application/json"
+      })
     end
    
     status = xpcall( xmlToJsonFunction, xmlToJsonErrorhandler )
