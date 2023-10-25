@@ -58,7 +58,7 @@ function plugin:access(config)
 		  end
 
 		  -- Convert the XML tree to a Lua table
-		  local lua_table = xml_tree_to_lua_table(handler.root)
+		  local lua_table = xpcall(xml_tree_to_lua_table(handler.root), xmlToJsonError)
 		  kong.service.request.set_raw_body(json.encode(lua_table))
 		end
 		function xmlToJsonError( err )
@@ -71,7 +71,7 @@ function plugin:access(config)
 		  })
 		end
    
-		status = xpcall( xmlToJsonFunction, xmlToJsonError )
+		local status = xpcall( xmlToJsonFunction, xmlToJsonError )
 		kong.log.set_serialize_value("request.Xml-To-Json_Request-status", status)
 	end
 end
