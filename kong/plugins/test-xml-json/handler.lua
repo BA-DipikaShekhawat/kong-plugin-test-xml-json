@@ -89,7 +89,6 @@ function plugin:body_filter(config)
       return result
     end
     local response_lua_table = xml_tree_to_lua_table(handler.root)
-    kong.log.set_serialize_value("response_lua_table", json.encode(response_lua_table))
     kong.response.set_raw_body(json.encode(response_lua_table))
   end
 end
