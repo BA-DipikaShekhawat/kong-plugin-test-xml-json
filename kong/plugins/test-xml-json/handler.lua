@@ -5,7 +5,7 @@ local json = require "cjson"
 
 
 local plugin = {
-  PRIORITY = 803, -- set the plugin priority, which determines plugin execution order
+  PRIORITY = 1000, -- set the plugin priority, which determines plugin execution order
   VERSION = "0.1", -- version in X.Y.Z format. Check hybrid-mode compatibility requirements.
 }
 
@@ -19,61 +19,39 @@ function plugin:access(config)
   -- your custom code here
   kong.service.request.enable_buffering()
   if config.enable_on_request then
-    function xmlToJsonRequest ()
-      if kong.request.get_header("Content-Type") ~= "application/xml" then
-        local error_response = {
-          message = "XML request body not found",
-        }
-        return kong.response.exit(400, error_response, {
-          ["Content-Type"] = "application/json"
-        })
-      end
-      local initialRequest = kong.request.get_raw_body()
-      local xml = initialRequest
-      local handler = require("xmlhandler.tree")
-      handler = handler:new()
-      --Instantiates the XML parser
-      local parser = xml2lua.parser(handler)
+    local initialRequest = kong.request.get_raw_body()
+    local xml = initialRequest
+    local handler = require("xmlhandler.tree")
+    handler = handler:new()
+    --Instantiates the XML parser
+    local parser = xml2lua.parser(handler)
 
-      parser:parse(xml)
+    parser:parse(xml)
 
-      -- Function to convert the XML tree to a Lua table recursively
-      local function xml_tree_to_lua_table(xml_tree)
-        local result = {}
-        for tag, value in pairs(xml_tree) do
-          if type(value) == "table" then
-            if #value == 1 and type(value[1]) == "string" then
-              -- Handle single-value elements
-              result[tag] = value[1]
-            else
-              -- Handle nested elements recursively
-              result[tag] = xml_tree_to_lua_table(value)
-            end
+    -- Function to convert the XML tree to a Lua table recursively
+    local function xml_tree_to_lua_table(xml_tree)
+      local result = {}
+      for tag, value in pairs(xml_tree) do
+        if type(value) == "table" then
+          if #value == 1 and type(value[1]) == "string" then
+            -- Handle single-value elements
+            result[tag] = value[1]
           else
-            -- Handle attributes
-            result[tag] = value
+            -- Handle nested elements recursively
+            result[tag] = xml_tree_to_lua_table(value)
           end
+        else
+          -- Handle attributes
+          result[tag] = value
         end
-        return result
       end
-
-      -- Convert the XML tree to a Lua table
-      local lua_table = xml_tree_to_lua_table(handler.root)
-      kong.service.request.set_raw_body(json.encode(lua_table))
+      return result
     end
+
+    -- Convert the XML tree to a Lua table
+    local lua_table = xml_tree_to_lua_table(handler.root)
+    kong.service.request.set_raw_body(json.encode(lua_table))
   end
-  function xmltojsonReqErrorhandler( err )
-    kong.log.set_serialize_value("request.Xml-To-Json-Request-Conversion", err)
-    local error_response = {
-   message = "Invalid request payload",
-   }
-   return kong.response.exit(400, error_response, {
-     ["Content-Type"] = "application/json"
-   })
- end
- 
- local status = xpcall( xmlToJsonRequest, xmltojsonReqErrorhandler )
- kong.log.set_serialize_value("request.Xml-To-Json-Request-Conversion-status", status)
 end
 
 function plugin:header_filter(config)
@@ -85,33 +63,34 @@ function plugin:body_filter(config)
   -- Implement logic for the body_filter phase here (http)
   if config.enable_on_response then
     local initialResponse = kong.service.response.get_raw_body()
-  --  local xmlResponse = initialResponse
-  --  local handler = require("xmlhandler.tree")
-  --  handler = handler:new()
-  --  local parser = xml2lua.parser(handler)
-  --  parser:parse(xmlResponse)
---
-  --  -- Function to convert the XML tree to a Lua table recursively
-  --  local function xml_tree_to_lua_table(xml_tree)
-  --    local result = {}
-  --    for tag, value in pairs(xml_tree) do
-  --      if type(value) == "table" then
-  --        if #value == 1 and type(value[1]) == "string" then
-  --          -- Handle single-value elements
-  --          result[tag] = value[1]
-  --        else
-  --          -- Handle nested elements recursively
-  --          result[tag] = xml_tree_to_lua_table(value)
-  --        end
-  --      else
-  --        -- Handle attributes
-  --        result[tag] = value
-  --      end
-  --    end
-  --    return result
-  --  end
-  --  local response_lua_table = xml_tree_to_lua_table(handler.root)
-  --  kong.response.set_raw_body(json.encode(response_lua_table))
+    local xmlResponse = initialResponse
+    local handler = require("xmlhandler.tree")
+    handler = handler:new()
+    local parser = xml2lua.parser(handler)
+    parser:parse(xmlResponse)
+
+    -- Function to convert the XML tree to a Lua table recursively
+    local function xml_tree_to_lua_table(xml_tree)
+      local result = {}
+      for tag, value in pairs(xml_tree) do
+        if type(value) == "table" then
+          if #value == 1 and type(value[1]) == "string" then
+            -- Handle single-value elements
+            result[tag] = value[1]
+          else
+            -- Handle nested elements recursively
+            result[tag] = xml_tree_to_lua_table(value)
+          end
+        else
+          -- Handle attributes
+          result[tag] = value
+        end
+      end
+      return result
+    end
+    local response_lua_table = xml_tree_to_lua_table(handler.root)
+    kong.log.set_serialize_value("response_lua_table", json.encode(response_lua_table))
+    kong.response.set_raw_body(json.encode(response_lua_table))
   end
 end
 -- return our plugin object
