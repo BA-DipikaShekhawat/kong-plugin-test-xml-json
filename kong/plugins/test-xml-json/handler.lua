@@ -65,9 +65,9 @@ function plugin:access(config)
   function xmltojsonReqErrorhandler( err )
     kong.log.set_serialize_value("request.Xml-To-Json-Request-Conversion", err)
     local error_response = {
-   message = "Xml-to-json conversion failed",
+   message = "Invalid request payload",
    }
-   return kong.response.exit(500, error_response, {
+   return kong.response.exit(400, error_response, {
      ["Content-Type"] = "application/json"
    })
  end
