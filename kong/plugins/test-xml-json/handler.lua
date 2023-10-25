@@ -84,7 +84,7 @@ end
 function plugin:body_filter(config)
   -- Implement logic for the body_filter phase here (http)
   if config.enable_on_response then
-	if kong.response.get_header("Content-Type") == "application/xml" or kong.response.get_header("Content-Type") == "application/xml; charset=utf-8"then
+	if kong.service.response.get_header("Content-Type") == "application/xml" or kong.service.response.get_header("Content-Type") == "application/xml; charset=utf-8"then
 		local initialResponse = kong.service.response.get_raw_body()
 		local xmlResponse = initialResponse
 		local handler = require("xmlhandler.tree")
