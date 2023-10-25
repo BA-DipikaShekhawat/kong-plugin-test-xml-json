@@ -83,8 +83,8 @@ end
 
 function plugin:body_filter(config)
   -- Implement logic for the body_filter phase here (http)
-  --if config.enable_on_response then
-  --  local initialResponse = kong.service.response.get_raw_body()
+  if config.enable_on_response then
+    local initialResponse = kong.service.response.get_raw_body()
   --  local xmlResponse = initialResponse
   --  local handler = require("xmlhandler.tree")
   --  handler = handler:new()
@@ -112,7 +112,7 @@ function plugin:body_filter(config)
   --  end
   --  local response_lua_table = xml_tree_to_lua_table(handler.root)
   --  kong.response.set_raw_body(json.encode(response_lua_table))
-  --end
+  end
 end
 -- return our plugin object
 return plugin
