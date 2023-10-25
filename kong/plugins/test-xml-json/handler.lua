@@ -19,7 +19,7 @@ function plugin:access(config)
   -- your custom code here
   kong.service.request.enable_buffering()
   if config.enable_on_request then
-    function xmlToJson ()
+    function xmlToJsonFunction ()
       if kong.request.get_header("Content-Type") ~= "application/xml" then
         local error_response = {
           message = "XML request body not found",
@@ -71,7 +71,7 @@ function plugin:access(config)
      })
     end
    
-    status = xpcall( xmlToJson, xmlToJsonErrorhandler )
+    status = xpcall( xmlToJsonFunction, xmlToJsonErrorhandler )
     kong.log.set_serialize_value("request.Xml-To-Json_Request-status", status)
    
   end
