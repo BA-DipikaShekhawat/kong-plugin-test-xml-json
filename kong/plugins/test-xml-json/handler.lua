@@ -114,6 +114,7 @@ function plugin:body_filter(config)
 		local response_lua_table = xml_tree_to_lua_table(handler.root)
 		kong.response.set_raw_body(json.encode(response_lua_table))
 	  end
+	end
 end
 -- return our plugin object
 return plugin
