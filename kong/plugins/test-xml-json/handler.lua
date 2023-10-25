@@ -17,9 +17,9 @@ end
 -- runs in the 'access_by_lua_block'
 function plugin:access(config)
   -- your custom code here
-  function xmlToJsonFunction ()
-    kong.service.request.enable_buffering()
-    if config.enable_on_request then
+  kong.service.request.enable_buffering()
+  if config.enable_on_request then
+    function xmlToJsonFunction ()
       if kong.request.get_header("Content-Type") ~= "application/xml" then
         local error_response = {
           message = "XML request body not found",
