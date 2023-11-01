@@ -22,7 +22,7 @@
       function xmlToJsonFunction ()
         if kong.request.get_header("Content-Type") ~= "application/xml" then
         local error_response = {
-          message = "The payload is not in required format",
+          message = "The payload is not in expected format",
         }
         return kong.response.exit(400, error_response, {
           ["Content-Type"] = "application/json"
