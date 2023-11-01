@@ -28,11 +28,11 @@
         handler = handler:new()
         --Instantiates the XML parser
         local parser = xml2lua.parser(handler)
-        local status, errormessage = pcall(parser:parse(), xml)
-        --parser:parse(xml)
-        if status == false then
-          return kong.response.error(400, "unable to parse", {["Content-Type"] = "application/json"})
-        end
+        --local status, errormessage = pcall(parser:parse(), xml)
+        parser:parse(xml)
+        --if status == false then
+        --  return kong.response.error(400, "unable to parse", {["Content-Type"] = "application/json"})
+        --end
         local lua_table = handler.root
         kong.service.request.set_raw_body(json.encode(lua_table))
       end
