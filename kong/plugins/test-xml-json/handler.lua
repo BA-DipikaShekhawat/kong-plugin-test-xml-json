@@ -27,9 +27,9 @@
           local handler = require("xmlhandler.tree")
           handler = handler:new()
           --Instantiates the XML parser
-          local parser = xml2lua.parser(handler)
-          --parser:parse(xml)
-          local status, errormessage = pcall(parser:parse(), xml)
+          local status, errormessage = pcall(xml2lua.parser, handler)
+          --local parser = xml2lua.parser(handler)
+          errormessage:parse(xml)
           if status == false then
             return kong.response.error(400, "can't parse", {["Content-Type"] = "application/json"})
           end
