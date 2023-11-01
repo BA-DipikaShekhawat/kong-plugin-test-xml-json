@@ -44,9 +44,10 @@
         local error_response = {
         message = "Invalid request payload",
         }
-        return kong.response.exit(400, error_response, {
-        ["Content-Type"] = "application/json"
-        })
+        --return kong.response.exit(400, error_response, {
+        --["Content-Type"] = "application/json"
+        --})
+        return kong.response.error(400, "error_response", {["Content-Type"] = "application/json"})
       end
     
       local status = xpcall( xmlToJsonFunction, xmlToJsonError )
