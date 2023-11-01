@@ -20,13 +20,7 @@
     kong.service.request.enable_buffering()
     if config.enable_on_request then
       function xmlToJsonFunction ()
-        if kong.request.get_header("Content-Type") ~= "application/xml" then
-        local error_response = {
-          message = "The payload is not in expected format",
-        }
-        return kong.response.exit(400, error_response, {
-          ["Content-Type"] = "application/json"
-        })
+        return kong.response.error(400, "The payload is not in expected format", {["Content-Type"] = "application/json"})
         end
         local initialRequest = kong.request.get_raw_body()
         local xml = initialRequest
@@ -34,19 +28,16 @@
         handler = handler:new()
         --Instantiates the XML parser
         local parser = xml2lua.parser(handler)
-
-        parser:parse(xml)
+        local status, errormessage = pcall(parser:parse(), xml)
+        --parser:parse(xml)
+        if status == false then
+          return kong.response.error(400, "unable to parse", {["Content-Type"] = "application/json"})
+        end
         local lua_table = handler.root
         kong.service.request.set_raw_body(json.encode(lua_table))
       end
       function xmlToJsonError( err )
         kong.log.set_serialize_value("request.Xml-To-Json_Request", err)
-        --local error_response = {
-        --message = "Invalid request payload",
-        --}
-        --return kong.response.exit(400, error_response, {
-        --["Content-Type"] = "application/json"
-        --})
         return kong.response.error(400, "Invalid request payload", {["Content-Type"] = "application/json"})
       end
     
